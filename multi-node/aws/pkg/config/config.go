@@ -28,7 +28,7 @@ func NewDefaultConfig() *Config {
 		ServiceCIDR:              "10.3.0.0/24",
 		KubernetesServiceIP:      "10.3.0.1",
 		DNSServiceIP:             "10.3.0.10",
-		K8sVer:                   "v1.1.4",
+		K8sVer:                   "v1.1.8",
 		ControllerInstanceType:   "m3.medium",
 		ControllerRootVolumeSize: 30,
 		WorkerCount:              1,
