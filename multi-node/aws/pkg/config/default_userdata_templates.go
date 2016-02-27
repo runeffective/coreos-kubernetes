@@ -16,17 +16,31 @@ coreos:
             Requires=flanneld.service
             After=flanneld.service
 
+    - name: download-kubelet.service
+      command: start
+      content: |
+        [Service]
+        TimeoutStartSec=0
+        ExecStart=/usr/bin/mkdir -p /opt/bin
+        ExecStart=/usr/bin/wget -N -P /opt/bin https://storage.googleapis.com/kubernetes-release/release/{{.K8sVer}}/bin/linux/amd64/kubelet
+        ExecStart=/usr/bin/chmod +x /opt/bin/kubelet
+        RemainAfterExit=yes
+        Type=oneshot
+
+        [Install]
+        WantedBy=multi-user.target
+
     - name: kubelet.service
       enable: true
       command: start
       content: |
         [Unit]
-        Requires=docker.service
-        After=docker.service
+        Requires=docker.service download-kubelet.service
+        After=docker.service download-kubelet.service
 
         [Service]
         ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
-        ExecStart=/usr/bin/kubelet \
+        ExecStart=/opt/bin/kubelet \
         --api_servers={{.SecureAPIServers}} \
         --register-node=true \
         --allow-privileged=true \
@@ -150,12 +164,31 @@ coreos:
             ExecStartPre=/usr/bin/curl --silent -X PUT -d \
             "value={\"Network\" : \"{{.PodCIDR}}\"}" \
             http://localhost:2379/v2/keys/coreos.com/network/config?prevExist=false
+
+    - name: download-kubelet.service
+      command: start
+      content: |
+        [Service]
+        TimeoutStartSec=0
+        ExecStart=/usr/bin/mkdir -p /opt/bin
+        ExecStart=/usr/bin/wget -N -P /opt/bin https://storage.googleapis.com/kubernetes-release/release/{{.K8sVer}}/bin/linux/amd64/kubelet
+        ExecStart=/usr/bin/chmod +x /opt/bin/kubelet
+        RemainAfterExit=yes
+        Type=oneshot
+
+        [Install]
+        WantedBy=multi-user.target
+
     - name: kubelet.service
       command: start
       enable: true
       content: |
+        [Unit]
+        Requires=docker.service download-kubelet.service
+        After=docker.service download-kubelet.service
+
         [Service]
-        ExecStart=/usr/bin/kubelet \
+        ExecStart=/opt/bin/kubelet \
         --api_servers=http://localhost:8080 \
         --register-node=false \
         --allow-privileged=true \
