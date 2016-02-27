@@ -14,6 +14,9 @@ externalDNSName: {{.ExternalDNSName}}
 
 ### DO NOT CHANGE PARAMETERS ABOVE HERE ###
 
+# You can override the version of Kubernetes by setting this
+# kubernetesVersion: v1.1.8
+
 # Name of the SSH keypair already loaded into the AWS
 # account being used to deploy this cluster.
 keyName: {{.KeyName}}
