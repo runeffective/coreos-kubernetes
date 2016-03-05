@@ -84,7 +84,7 @@ write_files:
             command:
             - /hyperkube
             - proxy
-            - --master={{.ControllerIP}}
+            - --master=https://{{.ControllerIP}}
             - --kubeconfig=/etc/kubernetes/worker-kubeconfig.yaml
             - --proxy-mode=iptables
             securityContext:
