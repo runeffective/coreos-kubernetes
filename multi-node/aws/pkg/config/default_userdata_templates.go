@@ -43,6 +43,7 @@ coreos:
         ExecStart=/opt/bin/kubelet \
         --api_servers={{.SecureAPIServers}} \
         --register-node=true \
+	--register-schedulable=false \
         --allow-privileged=true \
         --config=/etc/kubernetes/manifests \
         --cluster_dns={{.DNSServiceIP}} \
@@ -221,15 +222,15 @@ write_files:
     owner: root:root
     content: |
       #!/bin/bash -e
-      /usr/bin/curl -XPOST -d @"/srv/kubernetes/manifests/kube-system.json" "http://127.0.0.1:8080/api/v1/namespaces"
+      /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/kube-system.json" "http://127.0.0.1:8080/api/v1/namespaces"
 
       for manifest in {kube-dns,heapster,influxdb}-rc.json;do
-          /usr/bin/curl -XPOST \
+      /usr/bin/curl -H "Content-Type: application/json" -XPOST \
           -d @"/srv/kubernetes/manifests/$manifest" \
           "http://127.0.0.1:8080/api/v1/namespaces/kube-system/replicationcontrollers"
       done
       for manifest in {kube-dns,heapster,influxdb}-svc.json;do
-          /usr/bin/curl -XPOST \
+      /usr/bin/curl -H "Content-Type: application/json" -XPOST \
           -d @"/srv/kubernetes/manifests/$manifest" \
           "http://127.0.0.1:8080/api/v1/namespaces/kube-system/services"
       done
